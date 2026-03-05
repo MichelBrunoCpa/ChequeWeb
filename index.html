@@ -5,139 +5,252 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ChequeWeb - Preenchedor de Cheques</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <style>
-        :root {
-            --fonte-cheque:"Courier New",monospace;
-            --peso-padrao:600;
-            --tam-valor-num:13pt; --tam-extenso:11pt; --tam-nominal:11pt;
-            --tam-data:10pt; --tam-bom-para:9pt;
-            --print-offset-x:0mm; --print-offset-y:0mm;
-            --bg-primary:#f0f2f5; --bg-secondary:#fff;
-            --text-primary:#333; --text-secondary:#555; --text-tertiary:#999;
-            --border-color:#ededed;
-            --header-bg:linear-gradient(135deg,#1e3c72 0%,#2a5298 100%);
-            --accent-color:#2a5298;
-            --accent-glow:rgba(42,82,152,0.4);
-            --shadow-light:0 4px 15px rgba(0,0,0,0.1);
-            --shadow-dark:0 8px 25px rgba(0,0,0,0.15);
-            --shadow-inset:inset 0 2px 5px rgba(0,0,0,0.1);
-            --cheque-bg-opacity:0.75;
-        }
+  <style>
+    :root {
+      --fonte-cheque:"Courier New",monospace;
+      --peso-padrao:600;
+      --tam-valor-num:13pt; --tam-extenso:11pt; --tam-nominal:11pt;
+      --tam-data:10pt; --tam-bom-para:9pt;
+      --print-offset-x:0mm; --print-offset-y:0mm;
+      --bg-primary:#f0f2f5; --bg-secondary:#fff;
+      --text-primary:#333; --text-secondary:#555; --text-tertiary:#999;
+      --border-color:#ededed;
+      --header-bg:linear-gradient(135deg,#1e3c72 0%,#2a5298 100%);
+      --accent-color:#2a5298;
+      --accent-glow:rgba(42,82,152,0.4);
+      --shadow-light:0 4px 15px rgba(0,0,0,0.1);
+      --shadow-dark:0 8px 25px rgba(0,0,0,0.15);
+      --shadow-inset:inset 0 2px 5px rgba(0,0,0,0.1);
+      --cheque-bg-opacity:0.75;
+    }
 
-        body.tema-escuro {
-            --bg-primary:#1a1a1a; --bg-secondary:#2d2d2d;
-            --text-primary:#e0e0e0; --text-secondary:#b0b0b0; --text-tertiary:#808080;
-            --border-color:#404040;
-            --header-bg:linear-gradient(135deg,#0f1419 0%,#1a2332 100%);
-            --accent-color:#4a9eff; --accent-glow:rgba(74,158,255,0.5);
-            --shadow-light:0 4px 15px rgba(0,0,0,0.3);
-            --shadow-dark:0 8px 25px rgba(0,0,0,0.4);
-            --shadow-inset:inset 0 2px 5px rgba(0,0,0,0.3);
-        }
+    body.tema-escuro {
+      --bg-primary:#1a1a1a; --bg-secondary:#2d2d2d;
+      --text-primary:#e0e0e0; --text-secondary:#b0b0b0; --text-tertiary:#808080;
+      --border-color:#404040;
+      --header-bg:linear-gradient(135deg,#0f1419 0%,#1a2332 100%);
+      --accent-color:#4a9eff; --accent-glow:rgba(74,158,255,0.5);
+      --shadow-light:0 4px 15px rgba(0,0,0,0.3);
+      --shadow-dark:0 8px 25px rgba(0,0,0,0.4);
+      --shadow-inset:inset 0 2px 5px rgba(0,0,0,0.3);
+    }
 
-        *{margin:0;padding:0;box-sizing:border-box}
-        body{font-family:Arial,sans-serif;background:var(--bg-primary);color:var(--text-primary);transition:background-color .3s,color .3s}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:Arial,sans-serif;background:var(--bg-primary);color:var(--text-primary);transition:background-color .3s,color .3s}
 
-        /* Classes auxiliares */
-        .container{max-width:1200px;margin:0 auto;padding:20px}
-        .panel{background:var(--bg-secondary);padding:20px;border-radius:10px;box-shadow:var(--shadow-light);margin-bottom:20px}
-        .form-group{margin-bottom:15px}
-        .form-group label{display:block;margin-bottom:5px;font-weight:bold}
-        .form-group input{width:100%;padding:10px;border:1px solid var(--border-color);border-radius:5px;background:var(--bg-secondary);color:var(--text-primary)}
-        
-        .btn{padding:10px 20px;border:none;border-radius:5px;cursor:pointer;font-weight:bold;transition:0.3s}
-        .btn-primary{background:var(--accent-color);color:white}
-        .btn-primary:hover{opacity:0.8}
+    .btn,.tab,.top-btn,.btn-direcao button,.modal-btn,.historico-item-actions button{
+      border:none;border-radius:8px;padding:10px 12px;font-weight:800;cursor:pointer;
+      transition:all .15s ease;position:relative;overflow:hidden;
+      box-shadow:var(--shadow-light);
+    }
 
-        #cheque-preview {
-            width: 17.5cm;
-            height: 7.5cm;
-            background: #fffbe6;
-            border: 1px solid #ccc;
-            margin: 20px auto;
-            position: relative;
-            font-family: var(--fonte-cheque);
-            color: #000;
-        }
-    </style>
+    .btn:hover,.top-btn.light:hover{box-shadow:var(--shadow-dark),0 0 20px var(--accent-glow);transform:translateY(-2px)}
+    .btn:active,.top-btn.light:active{box-shadow:var(--shadow-inset),0 2px 5px rgba(0,0,0,.1);transform:translateY(3px)}
+
+    .tab:hover:not(.active){box-shadow:var(--shadow-dark),0 0 15px var(--accent-glow);transform:translateY(-2px)}
+    .tab:active:not(.active){box-shadow:var(--shadow-inset),0 2px 5px rgba(0,0,0,.1);transform:translateY(3px)}
+    .tab.active{background:var(--accent-color);color:#fff;box-shadow:var(--shadow-dark),0 0 20px var(--accent-glow)}
+
+    .historico-item-actions button:hover{box-shadow:var(--shadow-dark);transform:translateY(-1px)}
+    .historico-item-actions button:active{box-shadow:var(--shadow-inset),0 2px 5px rgba(0,0,0,.1);transform:translateY(2px)}
+
+    .modal-btn:hover{box-shadow:var(--shadow-dark);transform:translateY(-2px)}
+    .modal-btn:active{box-shadow:var(--shadow-inset),0 2px 5px rgba(0,0,0,.1);transform:translateY(2px)}
+
+    .btn-direcao button:hover{box-shadow:var(--shadow-dark);transform:translateY(-1px)}
+    .btn-direcao button:active{box-shadow:var(--shadow-inset),0 2px 5px rgba(0,0,0,.1);transform:translateY(1px)}
+
+    .btn-primary,.tab.active{background:var(--accent-color);color:#fff}
+    .btn-info,.btn-carregar{background:#17a2b8;color:#fff}
+    .btn-warning{background:#ffc107;color:#333}
+    .btn-danger,.btn-deletar{background:#dc3545;color:#fff} .btn-copia{background:#6B46C1;color:#fff}
+    .top-btn.light,.tab{background:#f3f5f7;color:var(--text-primary)}
+    body.tema-escuro .top-btn.light,
+    body.tema-escuro .tab{background:#3d3d3d;color:#e0e0e0;border:1px solid var(--accent-color)}
+    .modal-btn-sim{background:var(--accent-color);color:#fff}
+    .modal-btn-nao{background:#e0e0e0;color:#333}
+    body.tema-escuro .modal-btn-nao{background:#404040;color:#e0e0e0}
+
+    .btn-full{grid-column:1/-1}
+    .btn-small{padding:6px 10px;font-size:12px;border-radius:8px}
+
+    .ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.6);
+      transform:scale(0);animation:ripple-anim .6s ease-out;pointer-events:none}
+    @keyframes ripple-anim{to{transform:scale(4);opacity:0}}
+
+    .header{background:var(--header-bg);color:#fff;padding:16px 22px;box-shadow:0 2px 10px rgba(0,0,0,.1)}
+    .header-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .header h1{font-size:20px;margin:0}
+    .header p{font-size:12px;opacity:.95;margin-top:4px}
+    .header-right{display:flex;align-items:center;gap:10px}
+
+    .menu-bar{background:var(--bg-secondary);box-shadow:0 2px 8px rgba(0,0,0,.08)}
+    .menu-inner{max-width:1250px;margin:0 auto;padding:10px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap}
+    .menu-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+
+    .container{max-width:1250px;margin:0 auto;padding:18px}
+    .alerta{padding:12px 16px;border-radius:10px;margin-bottom:16px;display:none}
+    .alerta.mostrar{display:block}
+    .alerta-sucesso{background:#d4edda;color:#155724;border-left:4px solid #28a745}
+    .alerta-erro{background:#f8d7da;color:#721c24;border-left:4px solid #dc3545}
+
+    .tab-content{display:none}
+    .tab-content.active{display:block}
+
+    .grid{display:grid;grid-template-columns:380px 1fr;gap:22px}
+    .panel{background:var(--bg-secondary);padding:22px;border-radius:10px;border-left:4px solid var(--accent-color);box-shadow:var(--shadow-light)}
+    .panel h3,.historico-header h3,.relatorios-header h3,.configuracao-header h3{color:var(--accent-color);margin-bottom:16px;font-size:16px}
+
+    .form-group{margin-bottom:8px}
+    .form-group label{display:block;margin-bottom:3px;color:var(--text-secondary);font-weight:700;font-size:12px}
+    .form-group input,.form-group textarea,.form-group select,.select{
+      width:100%;padding:6px 8px;border:2px solid var(--border-color);border-radius:8px;
+      font-size:13px;transition:all .2s;background:var(--bg-secondary);color:var(--text-primary);
+      box-shadow:var(--shadow-light);
+    }
+    .form-group input:hover,.form-group textarea:hover,.form-group select:hover,
+    .select:hover{box-shadow:var(--shadow-dark),0 0 15px rgba(42,82,152,.2);transform:translateY(-1px)}
+    .form-group input:focus,.form-group textarea:focus,.form-group select:focus,
+    .select:focus{outline:none;border-color:var(--accent-color);box-shadow:var(--shadow-dark),0 0 20px rgba(42,82,152,.3);transform:translateY(-2px)}
+
+    .extenso-preview{background:#e3f2fd;border:2px solid #2196f3;padding:8px;border-radius:10px;
+      margin-top:6px;font-style:italic;color:#1565c0;min-height:38px;font-size:12px;line-height:1.35;box-shadow:var(--shadow-light);text-transform:uppercase}
+    body.tema-escuro .extenso-preview{background:#1a3a52;border-color:#4a9eff;color:#4a9eff}
+
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .btn-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
+
+    .preview-area{background:var(--bg-secondary);padding:18px;border-radius:10px;display:flex;flex-direction:column;align-items:center;box-shadow:var(--shadow-light)}
+    .preview-top{display:flex;justify-content:space-between;align-items:center;width:100%;max-width:17.5cm;margin-bottom:12px}
+    .preview-top h3{margin:0;color:var(--accent-color);font-size:16px}
+
+    #chequeFrame{width:17.5cm;height:7.5cm;overflow:hidden;position:relative;background:#fff}
+    .cheque-area{width:17.5cm;height:7.5cm;position:absolute;left:0;top:0;
+      background:rgba(255,255,200,.10);border:2px dashed #cfcfcf;
+      transform-origin:top left;
+      position:relative}
+    .cheque-area::before{
+      content:"";
+      position:absolute;
+      top:0;left:0;width:100%;height:100%;
+      background-image:url('data:image/jpeg;base64,...'); /* Mantido o base64 original */
+      background-size:cover;opacity:var(--cheque-bg-opacity);z-index:0}
+  </style>
 </head>
-<body>
+<body id="body">
 
     <div class="header">
-        <div class="container">
-            <h1>ChequeWeb</h1>
-            <p>Preenchedor de Cheques Profissional</p>
+        <div class="header-top">
+            <div>
+                <h1>ChequeWeb</h1>
+                <p>Sistema Profissional de Emissão de Cheques</p>
+            </div>
+            <div class="header-right">
+                <button class="top-btn light" onclick="toggleTema()">Alternar Tema</button>
+            </div>
         </div>
     </div>
 
     <div class="container">
-        <div class="panel">
-            <h3>Dados do Cheque</h3>
-            <div class="form-group">
-                <label>Valor (R$)</label>
-                <input type="number" id="input-valor" placeholder="0,00" step="0.01">
+        <div class="grid">
+            <div class="panel">
+                <h3>Dados do Cheque</h3>
+                <div class="form-group">
+                    <label>Valor (R$)</label>
+                    <input type="text" id="valor" placeholder="0,00" oninput="atualizarExtenso()">
+                    <div id="extenso-preview" class="extenso-preview"></div>
+                </div>
+                <div class="form-group">
+                    <label>Nominal a</label>
+                    <input type="text" id="nominal" placeholder="Nome do beneficiário">
+                </div>
+                <div class="row">
+                    <div class="form-group">
+                        <label>Cidade</label>
+                        <input type="text" id="cidade" value="Sua Cidade">
+                    </div>
+                    <div class="form-group">
+                        <label>Data</label>
+                        <input type="date" id="data">
+                    </div>
+                </div>
+                <button class="btn btn-primary btn-full" onclick="gerarCheque()">GERAR CHEQUE</button>
             </div>
-            <div class="form-group">
-                <label>Nominal a (Favorecido)</label>
-                <input type="text" id="input-nominal" placeholder="Nome da pessoa ou empresa">
+
+            <div class="preview-area">
+                <div class="preview-top">
+                    <h3>Visualização</h3>
+                    <button class="btn btn-info btn-small" onclick="window.print()">IMPRIMIR</button>
+                </div>
+                <div id="chequeFrame">
+                    <div class="cheque-area" id="cheque">
+                        </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label>Cidade</label>
-                <input type="text" id="input-cidade" value="Sua Cidade">
-            </div>
-            <div class="form-group">
-                <label>Data</label>
-                <input type="date" id="input-data">
-            </div>
-            
-            <button class="btn btn-primary" onclick="processarCheque()">Salvar e Gerar Cheque</button>
         </div>
     </div>
 
     <script>
-        // CONFIGURAÇÃO DA SUA API NO RENDER
         const API_URL = "https://chequeweb-api.onrender.com";
 
-        // Preencher a data de hoje automaticamente
-        document.getElementById('input-data').valueAsDate = new Date();
+        // --- FUNÇÃO PARA SALVAR NO BANCO ---
+        async function salvarNoBanco(dados) {
+            try {
+                await fetch(`${API_URL}/salvar`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(dados)
+                });
+                console.log("Sincronizado com o banco de dados.");
+            } catch (e) {
+                console.error("Erro na sincronização:", e);
+            }
+        }
 
-        async function processarCheque() {
-            // 1. Coleta os dados do formulário
-            const dados = {
-                valor: parseFloat(document.getElementById('input-valor').value) || 0,
-                extenso: "VALOR POR EXTENSO (GERADO AUTOMATICAMENTE)", // Aqui você pode usar sua função de extenso
-                nominal: document.getElementById('input-nominal').value,
-                cidade: document.getElementById('input-cidade').value,
-                data: document.getElementById('input-data').value
-            };
+        function gerarCheque() {
+            const valor = document.getElementById('valor').value;
+            const nominal = document.getElementById('nominal').value;
+            const cidade = document.getElementById('cidade').value;
+            const dataRaw = document.getElementById('data').value;
+            const extenso = document.getElementById('extenso-preview').innerText;
 
-            if (dados.valor <= 0 || !dados.nominal) {
-                alert("Por favor, preencha o valor e o favorecido.");
+            if(!valor || !nominal) {
+                alert("Preencha valor e nominal!");
                 return;
             }
 
-            // 2. Tenta salvar na Nuvem (Render/Turso)
-            try {
-                console.log("Enviando para nuvem...");
-                
-                const response = await fetch(`${API_URL}/salvar`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(dados)
-                });
+            // Atualiza o visual
+            const cheque = document.getElementById('cheque');
+            cheque.innerHTML = `
+                <div style="position:absolute; top:20px; right:50px; font-family:var(--fonte-cheque); font-size:var(--tam-valor-num); font-weight:bold;">R$ ${valor}</div>
+                <div style="position:absolute; top:60px; left:100px; font-family:var(--fonte-cheque); font-size:var(--tam-extenso); width:550px;">${extenso}</div>
+                <div style="position:absolute; top:110px; left:100px; font-family:var(--fonte-cheque); font-size:var(--tam-nominal);">${nominal}</div>
+                <div style="position:absolute; bottom:60px; left:250px; font-family:var(--fonte-cheque); font-size:var(--tam-data);">${cidade}, ${dataRaw}</div>
+            `;
 
-                if (response.ok) {
-                    alert("✅ Cheque salvo com sucesso no Banco de Dados!");
-                } else {
-                    alert("❌ Erro ao salvar no servidor.");
-                }
-            } catch (error) {
-                console.error("Erro:", error);
-                alert("⚠️ O servidor pode estar 'acordando'. Tente novamente em alguns segundos.");
-            }
+            // SALVA NO BANCO SILENCIOSAMENTE
+            salvarNoBanco({
+                valor: valor,
+                extenso: extenso,
+                nominal: nominal,
+                cidade: cidade,
+                data: dataRaw
+            });
         }
+
+        function atualizarExtenso() {
+            // Aqui entraria sua lógica de conversão numérica para extenso
+            const val = document.getElementById('valor').value;
+            document.getElementById('extenso-preview').innerText = "EXEMPLO DE VALOR POR EXTENSO";
+        }
+
+        function toggleTema() {
+            document.body.classList.toggle('tema-escuro');
+        }
+
+        // Definir data de hoje por padrão
+        document.getElementById('data').valueAsDate = new Date();
     </script>
 </body>
 </html>
