@@ -43,7 +43,7 @@
       transition:all .15s ease;position:relative;overflow:hidden;
       box-shadow:var(--shadow-light);
     }
-
+    
     .btn:hover,.top-btn.light:hover{box-shadow:var(--shadow-dark),0 0 20px var(--accent-glow);transform:translateY(-2px)}
     .btn:active,.top-btn.light:active{box-shadow:var(--shadow-inset),0 2px 5px rgba(0,0,0,.1);transform:translateY(3px)}
 
@@ -134,7 +134,7 @@
       content:"";
       position:absolute;
       top:0;left:0;width:100%;height:100%;
-      background-image:url('data:image/jpeg;base64,...'); /* Mantido o base64 original */
+      background-image:url('data:image/jpeg;base64, (CODIGO_IMAGEM_ORIGINAL_AQUI) ');
       background-size:cover;opacity:var(--cheque-bg-opacity);z-index:0}
   </style>
 </head>
@@ -175,7 +175,7 @@
                         <input type="date" id="data">
                     </div>
                 </div>
-                <button class="btn btn-primary btn-full" onclick="gerarCheque()">GERAR CHEQUE</button>
+                <button class="btn btn-primary btn-full" onclick="gerarCheque(); salvarNoTurso();">GERAR CHEQUE</button>
             </div>
 
             <div class="preview-area">
@@ -192,65 +192,40 @@
     </div>
 
     <script>
+        // --- ADIÇÃO: CONFIGURAÇÃO DO BANCO ---
         const API_URL = "https://chequeweb-api.onrender.com";
 
-        // --- FUNÇÃO PARA SALVAR NO BANCO ---
-        async function salvarNoBanco(dados) {
+        async function salvarNoTurso() {
+            const dados = {
+                valor: document.getElementById('valor').value,
+                extenso: document.getElementById('extenso-preview').innerText,
+                nominal: document.getElementById('nominal').value,
+                data: document.getElementById('data').value,
+                cidade: document.getElementById('cidade').value
+            };
+            
             try {
                 await fetch(`${API_URL}/salvar`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(dados)
                 });
-                console.log("Sincronizado com o banco de dados.");
+                console.log("Salvo no banco!");
             } catch (e) {
-                console.error("Erro na sincronização:", e);
+                console.error("Erro ao salvar:", e);
             }
         }
 
-        function gerarCheque() {
-            const valor = document.getElementById('valor').value;
-            const nominal = document.getElementById('nominal').value;
-            const cidade = document.getElementById('cidade').value;
-            const dataRaw = document.getElementById('data').value;
-            const extenso = document.getElementById('extenso-preview').innerText;
-
-            if(!valor || !nominal) {
-                alert("Preencha valor e nominal!");
-                return;
-            }
-
-            // Atualiza o visual
-            const cheque = document.getElementById('cheque');
-            cheque.innerHTML = `
-                <div style="position:absolute; top:20px; right:50px; font-family:var(--fonte-cheque); font-size:var(--tam-valor-num); font-weight:bold;">R$ ${valor}</div>
-                <div style="position:absolute; top:60px; left:100px; font-family:var(--fonte-cheque); font-size:var(--tam-extenso); width:550px;">${extenso}</div>
-                <div style="position:absolute; top:110px; left:100px; font-family:var(--fonte-cheque); font-size:var(--tam-nominal);">${nominal}</div>
-                <div style="position:absolute; bottom:60px; left:250px; font-family:var(--fonte-cheque); font-size:var(--tam-data);">${cidade}, ${dataRaw}</div>
-            `;
-
-            // SALVA NO BANCO SILENCIOSAMENTE
-            salvarNoBanco({
-                valor: valor,
-                extenso: extenso,
-                nominal: nominal,
-                cidade: cidade,
-                data: dataRaw
-            });
-        }
-
-        function atualizarExtenso() {
-            // Aqui entraria sua lógica de conversão numérica para extenso
-            const val = document.getElementById('valor').value;
-            document.getElementById('extenso-preview').innerText = "EXEMPLO DE VALOR POR EXTENSO";
-        }
+        // --- ABAIXO, COLOQUE TODO O SEU JAVASCRIPT ORIGINAL SEM MEXER EM NADA ---
+        // (Incluindo sua função gerarCheque(), atualizarExtenso(), etc)
 
         function toggleTema() {
             document.body.classList.toggle('tema-escuro');
         }
 
-        // Definir data de hoje por padrão
         document.getElementById('data').valueAsDate = new Date();
+        
+        // Coloque aqui o restante das suas funções de extenso e lógica
     </script>
 </body>
 </html>
